@@ -9,7 +9,7 @@ This skill is **documentation only**. The API is a standard HTTP+JSON contract �
 ### Recommended — one-liner via `skills` CLI
 
 ```bash
-npx skills add https://github.com/nashsu/llm_wiki_skill.git --skill llm_wiki_skill
+npx skills add https://github.com/nashsu/llm_wiki_skill.git --skill llm-wiki
 ```
 
 This fetches the latest version of the skill from GitHub and registers it with your agent runtime. Re-run the same command to update to a newer revision later.
@@ -61,6 +61,8 @@ No scripts, no wrappers. If you find yourself wanting one, just `curl`.
    You can also flip `Settings → API Server → "Allow access without a token"`, which removes auth entirely. **Local-only — but any process on this machine can then read your wiki.** Use only with trusted setups.
 
 ## Quick smoke test
+
+> **Windows users**: replace `export LLM_WIKI_API_TOKEN=...` with `$env:LLM_WIKI_API_TOKEN = "..."` (PowerShell) or `set LLM_WIKI_API_TOKEN=...` (cmd.exe). Use `curl.exe` instead of `curl` in PowerShell to bypass the `Invoke-WebRequest` alias. Backslash line-continuations (`\`) become backticks (`` ` ``) in PowerShell and `^` in cmd.
 
 ```bash
 export LLM_WIKI_API_TOKEN=...

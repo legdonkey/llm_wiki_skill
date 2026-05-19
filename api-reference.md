@@ -96,10 +96,25 @@ Algorithm:
 If the user gives a filesystem path verbatim, you can URL-encode it and pass it as `{id}` directly — no list lookup needed:
 
 ```bash
+# macOS / Linux (bash / zsh)
 PROJECT_PATH=$(printf %s "/Users/me/wiki/reading" | jq -sRr @uri)
 curl -s -H "Authorization: Bearer $TOKEN" \
   "$BASE/api/v1/projects/$PROJECT_PATH/files?root=wiki"
 ```
+
+```powershell
+# Windows (PowerShell)
+$projectPath = [System.Uri]::EscapeDataString("C:/Users/me/wiki/reading")
+curl.exe -s -H "Authorization: Bearer $env:LLM_WIKI_API_TOKEN" `
+  "$env:BASE/api/v1/projects/$projectPath/files?root=wiki"
+```
+
+**Windows path gotchas** — match the form the desktop app stored, otherwise you'll get 404:
+
+- Use **forward slashes** (`C:/Users/me/wiki`), not backslashes. The desktop app normalizes paths to forward slashes before saving.
+- Preserve the case the user actually has on disk (`C:/Users/Me/...` ≠ `c:/users/me/...` for the API's string compare, even though Windows itself is case-insensitive).
+- The colon after the drive letter **must** be percent-encoded (`%3A`) — it's a reserved URI delimiter. `EscapeDataString` / `jq @uri` / `encodeURIComponent` all do this for you.
+- If you get 404, fall back to `GET /api/v1/projects`, find the project there, and use its `id` (UUID) — UUIDs are platform-agnostic and never need encoding.
 
 If the path isn't registered in the desktop app, you'll get **404** — fall back to listing and asking.
 

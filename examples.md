@@ -4,6 +4,27 @@ Treat these as **recipes**, not scripts. The agent decides when to combine them.
 
 ---
 
+## Cross-platform note (Windows / macOS / Linux)
+
+The bash + `curl` + `jq` snippets below are written for **macOS / Linux**. On **Windows**, translate them to whichever shell the user is in:
+
+| What the bash example does | PowerShell equivalent | cmd.exe equivalent |
+|---|---|---|
+| `$TOKEN` env var | `$env:LLM_WIKI_API_TOKEN` | `%LLM_WIKI_API_TOKEN%` |
+| URL-encode a string<br>`printf %s "$x" \| jq -sRr @uri` | `[System.Uri]::EscapeDataString($x)` | use a helper / `curl --data-urlencode` |
+| `curl -s -H "Authorization: …"` | `curl.exe -s -H "Authorization: …"` (use `curl.exe` to avoid PowerShell's `curl` → `Invoke-WebRequest` alias) | `curl -s -H "Authorization: …"` |
+| Backtick line-continuation `\` at end of line | backtick `` ` `` at end of line | `^` at end of line |
+
+**Paths on Windows**:
+
+- Always pass **forward slashes** in API request paths (`wiki/concepts/foo.md`, never `wiki\concepts\foo.md`). The server stores and accepts the forward-slash form.
+- When using a Windows filesystem path as `{id}` (e.g. `C:/Users/me/wiki`), percent-encode the **colon** (`C%3A/Users/me/wiki`). `EscapeDataString` / `encodeURIComponent` / `jq @uri` all do this correctly.
+- If a path-as-id call returns 404 on Windows, fall back to `GET /api/v1/projects` and use the project's UUID — UUIDs are platform-agnostic and don't need encoding.
+
+If you're calling from JavaScript / Python / Go / any other language with a real HTTP client (`fetch`, `requests`, `httpx`, `net/http`), platform doesn't matter — just `encodeURIComponent` or its equivalent and forget the shell quirks.
+
+---
+
 ## "What does my wiki say about X?"
 
 The single most common ask. Workflow:
